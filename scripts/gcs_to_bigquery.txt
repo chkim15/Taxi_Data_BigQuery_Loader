@@ -1,0 +1,22 @@
+1. taxi_search_history.csv
+
+bq load \                                            
+  --source_format=CSV \
+  --skip_leading_rows=1 \
+  --allow_quoted_newlines \
+  obi.taxi_search_history \
+  gs://uber_obi_data/taxi_data/taxi_search_history.csv \
+  ./schema.json             
+
+
+2. taxi_request.csv
+
+bq load \                                            
+  --source_format=CSV \
+  --skip_leading_rows=1 \
+  --allow_quoted_newlines \
+  obi.taxi_request \
+  gs://uber_obi_data/taxi_data/taxi_request.csv \
+  ./schema_taxi_request.json
+
+

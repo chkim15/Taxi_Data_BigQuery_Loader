@@ -1,7 +1,7 @@
-# scripts/load_to_bigquery.py
+# scripts/load_from_gcs.py
 #!/usr/bin/env python3
 """
-Script to load processed data into BigQuery.
+Script to load data from GCS to BigQuery (skipping the upload).
 """
 import os
 import sys
@@ -9,31 +9,17 @@ import json
 import logging
 import argparse
 from google.cloud import bigquery
-from google.cloud import storage
 
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('logs/bigquery_loading.log'),
+        logging.FileHandler('logs/gcs_to_bq.log'),
         logging.StreamHandler(sys.stdout)
     ]
 )
 logger = logging.getLogger(__name__)
-
-def upload_to_gcs(bucket_name, source_file, destination_blob, credentials_file=None):
-    """Upload a file to Google Cloud Storage."""
-    if credentials_file:
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_file
-    
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(destination_blob)
-    
-    logger.info(f"Uploading {source_file} to gs://{bucket_name}/{destination_blob}")
-    blob.upload_from_filename(source_file)
-    logger.info(f"File {source_file} uploaded to gs://{bucket_name}/{destination_blob}")
 
 def load_to_bigquery(dataset, table, gcs_uri, schema_file, credentials_file=None):
     """Load data from GCS to BigQuery."""
@@ -77,8 +63,8 @@ def load_to_bigquery(dataset, table, gcs_uri, schema_file, credentials_file=None
     logger.info(f"Loaded {load_job.output_rows} rows into {table_ref}")
 
 def main():
-    """Main BigQuery loading function"""
-    parser = argparse.ArgumentParser(description='Load data into BigQuery')
+    """Main function to load from GCS to BigQuery"""
+    parser = argparse.ArgumentParser(description='Load data from GCS to BigQuery')
     parser.add_argument('--bucket', required=True, help='GCS bucket name')
     parser.add_argument('--dataset', required=True, help='BigQuery dataset ID')
     parser.add_argument('--tables', nargs='+', default=['taxi_search_history', 'taxi_request'], 
@@ -88,13 +74,8 @@ def main():
     
     for table in args.tables:
         try:
-            # 1. Upload to GCS
-            source_file = f"/Volumes/Elements/data/processed/{table}.csv"
-            destination_blob = f"taxi_data/{table}.csv"
-            upload_to_gcs(args.bucket, source_file, destination_blob, args.credentials)
-            
-            # 2. Load to BigQuery
-            gcs_uri = f"gs://{args.bucket}/{destination_blob}"
+            # Load to BigQuery
+            gcs_uri = f"gs://{args.bucket}/taxi_data/{table}.csv"
             schema_file = f"config/schema_{table}.json"
             load_to_bigquery(args.dataset, table, gcs_uri, schema_file, args.credentials)
             
