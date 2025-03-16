@@ -21,16 +21,9 @@ CREATE OR REPLACE TABLE `obi.taxi_search_history_us_8_standard` AS (
     WHERE 
         e.search_id IN (SELECT search_id FROM search_both_products)
         AND e.product_name IN ('UberX', 'Lyft', 'Curb Taxi', 'Carmel Full Size Sedan')
+        AND distance_meters > 482.8  -- 0.3 miles in meters
+        AND distance_meters < 80467.2  -- 50 miles in meters
+        AND price_min < 200
+        AND price_min IS NOT NULL
+        AND duration_seconds < 10800  -- 3 hours in seconds
 );
-
--- Delete potentially irrelevant entries
-DELETE FROM `obi.taxi_search_history_us_8_standard`
-WHERE 
-    distance_meters <= 482.8  -- 0.3 miles in meters
-    OR distance_meters >= 80467.2  -- 50 miles in meters
-    OR price_min >= 200
-    OR duration_seconds > 10800;  -- 3 hours in seconds
-
--- Delete where price is Null
-DELETE FROM `obi.taxi_search_history_us_8_standard`
-WHERE price_min IS NULL;
