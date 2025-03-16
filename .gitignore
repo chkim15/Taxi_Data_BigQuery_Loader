@@ -52,7 +52,6 @@ Thumbs.db
 *.gz
 *.tar
 *.dump
-*.sql
 out.sql
 !sample_data/*.csv
 !sample_data/*.sql
