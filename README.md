@@ -33,6 +33,15 @@ taxi-data-bigquery/
 │   ├── run_pipeline.py
 │   └── utils/
 │       └── sql_parser.py
+├── bigquery_transform_sql/
+│   ├── 01_remove_bot_users.sql
+│   ├── 02_filter_8_cities.sql
+│   ├── 03_only_uberx_lyft_standard.sql
+│   ├── 04_delete_more_than_10_same_requests.sql
+│   ├── 05_create_region.sql
+│   ├── 06_add_place_category.sql
+│   ├── 07_create_analysis_dataset.sql
+│   ├── 08_create_analysis_2_dataset.sql
 ├── README.md
 └── requirements.txt
 ```
@@ -115,3 +124,23 @@ python scripts/load_taxi_search_history.py --bucket your-bucket --dataset your-d
 - For large files, the loading process can take a significant amount of time
 
 - All scripts include error handling and logging to help with troubleshooting
+
+### BigQuery SQL Files Summary
+
+The project includes several SQL files that process and transform the taxi data:
+
+1. **01_remove_bot_users.sql**: Filters out bot users and competitor IDs, focusing on US geographic coordinates.
+
+2. **02_filter_8_cities.sql**: Limits data to 8 major US cities (Boston, NYC, Chicago, LA, Miami, Seattle, Minneapolis, Houston).
+
+3. **03_only_uberx_lyft_standard.sql**: Creates dataset with searches containing both UberX and Lyft, filtered by distance and price.
+
+4. **04_delete_more_than_10_same_requests.sql**: Reduces redundancy by keeping only the first 5 identical route requests per user per day.
+
+5. **05_create_region.sql**: Establishes reference table with city centers and airport coordinates for the 8 cities.
+
+6. **06_add_place_category.sql**: Categorizes locations as "airport", "city center", or "outside city center" based on coordinates.
+
+7. **07_create_analysis_dataset.sql**: Transforms data with local timestamps, day/hour information, and price calculations.
+
+8. **08_create_analysis_2_dataset.sql**: Creates comparison table with UberX and Lyft prices side-by-side for direct analysis.
